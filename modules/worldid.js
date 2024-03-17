@@ -9,17 +9,26 @@ const joinRequests = new Map();
 async function verifyCommand(ctx) {
   const user = ctx.from;
 
-  const welcomeMsg = `Welcome, ${user.first_name}! Please verify your identity to proceed.`;
+  const welcomeMsg = `✨ <b>Welcome ${user.first_name} to SpicyFans!</b>
 
-  const verifyButton = new InlineKeyboard().url(
+🪩 A place to collect rewards for your support, 
+share your journey and join the chorus.
+
+In order to participate, <i>verify your identity</i> ⤵️`;
+
+  const verifyButton = new InlineKeyboard().webApp(
     "🌐 Verify with World ID",
     `${config.appUrl}/verify/${user.id}`
   );
 
-  const sentMessage = await ctx.reply(welcomeMsg, {
-    parse_mode: "HTML",
-    reply_markup: verifyButton,
-  });
+  const sentMessage = await ctx.replyWithPhoto(
+    "https://i.ibb.co/5MBjt9Q/Spicy-Fans.png",
+    {
+      caption: welcomeMsg,
+      parse_mode: "HTML",
+      reply_markup: verifyButton,
+    }
+  );
 
   joinRequests.set(user.id.toString(), {
     msgId: sentMessage.message_id,
@@ -73,9 +82,9 @@ async function verifyRoute(req, res) {
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>IDKit Playground</title>
+      <script src="https://unpkg.com/@worldcoin/idkit-standalone@1.1.4/build/index.global.js"></script>
     </head>
     <body>
-      <script src="https://unpkg.com/@worldcoin/idkit-standalone@1.1.4/build/index.global.js"></script>
       <script type="module">
         IDKit.init({
           autoClose: true,
@@ -85,18 +94,18 @@ async function verifyRoute(req, res) {
           enableTelemetry: true,
           verification_level: 'device',
           action_description: 'Test action description',
-          handleVerify: async response => { // Mark this function as async
+          handleVerify: async response => {
               const res = await fetch('/verify', {
                   method: 'POST',
                   body: JSON.stringify({
                       ...response,
-                      userId: '1732949797',
+                      userId: '${userId}',
                   }),
                   headers: { 'Content-Type': 'application/json' },
               })
 
               if (res.ok) {
-                  alert('Successfully verified! You can now close this and go back to the bot.');
+                  Telegram.WebApp.close();
               } else if (res.status === 429) {
                   alert('This World ID has already been used for verification. You cannot do it again!');
               } else {
