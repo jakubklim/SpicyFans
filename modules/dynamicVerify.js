@@ -9,17 +9,25 @@ const dynamicJoinRequests = new Map();
 async function dynamicVerifyCommand(ctx) {
   const user = ctx.from;
 
-  const welcomeMsg = `Welcome, ${user.first_name}! Please verify your Dynamic.xyz account to proceed.`;
+  const welcomeMsg = `<b>💳 Create or Connect Web3 Wallet!</b>
+
+🔑 No matter what is your skill level, we've got you covered — E-Mail, Social Login, Web3
+
+In order to start earning, <i>connect your wallet</i> ⤵️`;
 
   const verifyButton = new InlineKeyboard().webApp(
-    "🌐 Verify with Dynamic.xyz",
+    "🌐 Access Web3 with Dynamic",
     `${config.reactUrl}?id=${user.id}`
   );
 
-  const sentMessage = await ctx.reply(welcomeMsg, {
-    parse_mode: "HTML",
-    reply_markup: verifyButton,
-  });
+  const sentMessage = await ctx.replyWithPhoto(
+    "https://i.ibb.co/5MBjt9Q/Spicy-Fans.png",
+    {
+      caption: welcomeMsg,
+      parse_mode: "HTML",
+      reply_markup: verifyButton,
+    }
+  );
 
   dynamicJoinRequests.set(user.id.toString(), {
     msgId: sentMessage.message_id,
@@ -43,7 +51,9 @@ async function dynamicVerifyPost(req, res) {
     // Send the verification message to the Telegram user
     await bot.tg.api.sendMessage(
       telegramUserId,
-      `Your Dynamic.xyz account has been verified! Your Dynamic User ID is: ${dynamicUserId}`
+      `Your Dynamic.xyz account has been verified!
+      
+      ${JSON.stringify(dynamicUserId)}`
     );
 
     bot.tg.WebApp.close();

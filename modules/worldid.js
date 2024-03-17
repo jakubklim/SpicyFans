@@ -83,6 +83,7 @@ async function verifyRoute(req, res) {
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>IDKit Playground</title>
       <script src="https://unpkg.com/@worldcoin/idkit-standalone@1.1.4/build/index.global.js"></script>
+      <script src="https://telegram.org/js/telegram-web-app.js"></script>
     </head>
     <body>
       <script type="module">
@@ -105,7 +106,7 @@ async function verifyRoute(req, res) {
               })
 
               if (res.ok) {
-                  Telegram.WebApp.close();
+                  console.log(window.Telegram.WebApp.close());
               } else if (res.status === 429) {
                   alert('This World ID has already been used for verification. You cannot do it again!');
               } else {

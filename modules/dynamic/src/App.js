@@ -1,10 +1,10 @@
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import {
   DynamicContextProvider,
-  DynamicWidget,
+  DynamicEmbeddedWidget,
 } from "@dynamic-labs/sdk-react-core";
 import { useLocation } from "react-router-dom";
-
+import { useEffect } from "react";
 const evmNetworks = [
   {
     blockExplorerUrls: ["https://testnet.chiliscan.com/"],
@@ -39,12 +39,27 @@ const App = () => {
   const query = useQuery();
   const id = query.get("id"); // This will be '12345' if the URL is localhost:3000?id=12345
 
+  useEffect(() => {
+    window.onerror = function (message, source, lineno, colno, error) {
+      if (
+        typeof message === "string" &&
+        message.includes("TelegramGameProxy")
+      ) {
+        console.error("TelegramGameProxy error handled");
+        return true; // This prevents the error from being logged in the console
+      }
+    };
+  }, []); // Empty dependency array ensures this runs only once on mount
+
   return (
     <DynamicContextProvider
       settings={{
         environmentId: "d85cc0dd-1657-47d1-84d1-42b7c09b81d1",
         walletConnectors: [EthereumWalletConnectors],
         evmNetworks,
+        initialState: {
+          isOpen: true, // Add this line to open the widget by default
+        },
         eventsCallbacks: {
           onAuthSuccess: async (args) => {
             console.log("onAuthSuccess was called", args);
@@ -60,7 +75,7 @@ const App = () => {
                       "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                      dynamicUserId: args.authToken,
+                      dynamicUserId: args,
                       telegramUserId: id,
                     }),
                   }
@@ -79,7 +94,10 @@ const App = () => {
         },
       }}
     >
-      <DynamicWidget />
+      <div className="widget-container">
+        {/* background can be none, default or with-border */}
+        <DynamicEmbeddedWidget background="default" />
+      </div>
     </DynamicContextProvider>
   );
 };
